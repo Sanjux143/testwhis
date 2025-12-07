@@ -1,0 +1,43 @@
+name: Run Whisper on Audio
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Manually run karne ke liye
+
+jobs:
+  transcribe:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Whisper ke liye FFmpeg zaroori hai
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Whisper
+        run: |
+          pip install openai-whisper
+
+      # Yahan hum 'tiny' model use kar rahe hain taaki CPU par tez chale
+      # Agar quality chahiye to 'base' ya 'small' karein, par wo slow honge.
+      - name: Run Whisper Transcription
+        run: |
+          # Make sure aapke repo me 'audio.mp3' naam ki file root folder me ho
+          whisper audio.mp3 --model medium --output_format vtt --word_timestamps True --threads 4 
+        
+
+      - name: Upload Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcription-result
+          path: audio.vtt
