@@ -32,7 +32,7 @@ jobs:
       - name: Run Whisper Transcription
         run: |
           # Make sure aapke repo me 'audio.mp3' naam ki file root folder me ho
-          whisper "Tales of Herding Gods 60.mp3" --model medium --output_format vtt --word_timestamps True --threads 4 
+          whisper "audio.mp3" --model medium --output_format vtt --word_timestamps True --threads 4 
         
 
       - name: Upload Result
