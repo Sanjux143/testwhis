@@ -3,7 +3,7 @@ name: Run Whisper on Audio
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: # Manually run karne ke liye
+  workflow_dispatch: 
 
 jobs:
   transcribe:
@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Whisper ke liye FFmpeg zaroori hai
+      # 
       - name: Install FFmpeg
         run: |
           sudo apt-get update
@@ -28,12 +28,11 @@ jobs:
         run: |
           pip install openai-whisper
 
-      # Yahan hum 'tiny' model use kar rahe hain taaki CPU par tez chale
-      # Agar quality chahiye to 'base' ya 'small' karein, par wo slow honge.
+      
       - name: Run Whisper Transcription
         run: |
           # Make sure aapke repo me 'audio.mp3' naam ki file root folder me ho
-          whisper audio.mp3 --model medium --output_format vtt --word_timestamps True --threads 4 
+          whisper "Tales of Herding Gods 60.mp3" --model medium --output_format vtt --word_timestamps True --threads 4 
         
 
       - name: Upload Result
