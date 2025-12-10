@@ -1,42 +1,40 @@
-name: Run Whisper on Audio
+name: Android APK Build
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main" ]
-  workflow_dispatch: 
+    branches: [ master ]
 
 jobs:
-  transcribe:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        submodules: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
 
-      # 
-      - name: Install FFmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
 
-      - name: Install Whisper
-        run: |
-          pip install openai-whisper
+    - name: Install NDK
+      run: sdkmanager "ndk;25.2.9519653" "cmake;3.22.1"
 
-      
-      - name: Run Whisper Transcription
-        run: |
-          # Make sure aapke repo me 'audio.mp3' naam ki file root folder me ho
-          whisper "audio.mp3" --model medium --output_format vtt --word_timestamps True --threads 4 
-        
+    - name: Gradle Permissions
+      run: chmod +x ./gradlew
 
-      - name: Upload Result
-        uses: actions/upload-artifact@v4
-        with:
-          name: transcription-result
-          path: audio.vtt
+    - name: Build APK
+      run: ./gradlew assembleDebug --stacktrace
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: whisper-debug-apk
+        path: app/build/outputs/apk/debug/*.apk
